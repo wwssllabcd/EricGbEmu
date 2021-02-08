@@ -3,6 +3,7 @@
 #include "Cpu.h"
 #include "header.h"
 #include "mmu.h"
+#include "opcode/opcode_map.h"
 
 Cpu g_cpu = {
     .af = 0,
@@ -51,8 +52,33 @@ void set_c(bool val) {
     flags->c = SET_FLAG(val);
 }
 
+eu8 fetch(void) {
+    eu8 val = get_ram(REG_PC);
+    INC_REG(pc);
+    return val;
+}
+
+eu8 execute_opcode() {
+    eu8 opcode = fetch();
+    opcode_fun_usp op_map = g_opcode_fun_map;
+    bool is_cb_cmd = false;
+
+    if (opcode == PREFIX_CMD) {
+        opcode = fetch();
+        op_map = g_opcode_cb_fun_map;
+        is_cb_cmd = true;
+    }
+
+    op_map[opcode]();
+    return 1;
+}
+
+eu8 cpu_tick() {
+    return execute_opcode();
+}
+
 void tick() {
-    g_cpu.running = false;
+    cpu_tick();
 }
 
 void run_cpu() {
