@@ -22,7 +22,9 @@
     <ClCompile Include="adapter_sdl.c" />
     <ClCompile Include="common\utility\show_msg.c" />
     <ClCompile Include="common\utility\Util.c" />
+    <ClCompile Include="cpu.c" />
     <ClCompile Include="main.c" />
+    <ClCompile Include="mmu.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adapter_sdl.h" />
@@ -36,11 +38,13 @@
     <ClInclude Include="common\type\type_header.h" />
     <ClInclude Include="common\utility\show_msg.h" />
     <ClInclude Include="common\utility\Util.h" />
+    <ClInclude Include="cpu.h" />
     <ClInclude Include="define\define_gb.h" />
     <ClInclude Include="define\define_header.h" />
     <ClInclude Include="define\define_macro.h" />
     <ClInclude Include="define\define_ram_layout.h" />
     <ClInclude Include="header.h" />
+    <ClInclude Include="mmu.h" />
     <ClInclude Include="type\type_cpu.h" />
     <ClInclude Include="type\type_gb.h" />
   </ItemGroup>
