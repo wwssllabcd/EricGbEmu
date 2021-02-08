@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="adapter_sdl.c" />
+    <ClCompile Include="boot\boot_rom.c" />
     <ClCompile Include="common\utility\show_msg.c" />
     <ClCompile Include="common\utility\Util.c" />
     <ClCompile Include="cpu.c" />
@@ -30,6 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adapter_sdl.h" />
+    <ClInclude Include="boot\boot_rom.h" />
     <ClInclude Include="common\common_header.h" />
     <ClInclude Include="common\define\define_const_bit.h" />
     <ClInclude Include="common\define\define_const_num.h" />
