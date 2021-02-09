@@ -518,7 +518,7 @@ void opcode_jr_cc_n(bool condition) {
     if (condition) {
         opcode_jr_n();
     } else {
-        REG_PC++;
+        INC_REG(pc);
     }
 }
 
@@ -533,7 +533,8 @@ void opcode_call_cc_nn(bool condition) {
     if (condition) {
         opcode_call_nn();
     } else {
-        REG_PC += 2;
+        INC_REG(pc);
+        INC_REG(pc);
     }
 }
 
