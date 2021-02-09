@@ -63,3 +63,11 @@ void set_c(bool val);
 
 void power_on_cpu(eu8_p rom);
 
+eu8 fetch(void);
+eu16 fetch_word();
+
+void stack_push(WordReg_p reg);
+void stack_pop(WordReg_p reg);
+
+void disable_halt();
+void enable_halt();

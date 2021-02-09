@@ -15,7 +15,7 @@ Cpu g_cpu = {
 
     .halt = false,
     .running = true,
-    .interrupt_occur = false,
+    .enable_interrupt = false,
 
     .clock_cnt = 0,
 };
@@ -52,9 +52,38 @@ void set_c(bool val) {
     flags->c = SET_FLAG(val);
 }
 
+void disable_halt() {
+    g_cpu.halt = false;
+}
+
+void enable_halt() {
+    g_cpu.halt = true;
+}
+
+void stack_push(WordReg_p reg) {
+    DEC_REG(sp);
+    set_ram(REG_SP, REG_VAL(REG_HIGH(reg)));
+    DEC_REG(sp);
+    set_ram(REG_SP, REG_VAL(REG_LOW(reg)));
+}
+
+void stack_pop(WordReg_p reg) {
+    REG_VAL(REG_LOW(reg)) = get_ram(REG_SP);
+    INC_REG(sp);
+    REG_VAL(REG_HIGH(reg)) = get_ram(REG_SP);
+    INC_REG(sp);
+}
+
 eu8 fetch(void) {
     eu8 val = get_ram(REG_PC);
     INC_REG(pc);
+    return val;
+}
+
+eu16 fetch_word() {
+    eu16 val = 0;
+    val |= fetch();
+    val |= fetch() << 8;
     return val;
 }
 
@@ -74,11 +103,16 @@ eu8 execute_opcode() {
 }
 
 eu8 cpu_tick() {
+    if (g_cpu.halt) {
+        return 1;
+    }
     return execute_opcode();
 }
 
 void tick() {
+    
     cpu_tick();
+
 }
 
 void run_cpu() {

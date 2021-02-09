@@ -70,7 +70,7 @@ typedef struct {
 
     bool halt;
     bool running;
-    bool interrupt_occur;
+    bool enable_interrupt;
 
     eu32 clock_cnt;
 }Cpu;

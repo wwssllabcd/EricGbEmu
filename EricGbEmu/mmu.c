@@ -9,7 +9,7 @@ eu8 g_ram[GB_RAM_SIZE] = { 0 };
 ZeroPage_p g_zero_page = (ZeroPage_p)(g_ram + ZERO_PAGE);
 
 eu8_p get_ram_ptr(RamAddr address) {
-    if (address < 0x100) {
+    if (address < BOOT_ROM_LENGTH) {
         if (g_zero_page->boot_rom_disable == 0) {
             return (eu8_p)&boot_rom_dmg[address];
         }

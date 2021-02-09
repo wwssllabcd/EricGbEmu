@@ -1,7 +1,7 @@
 #pragma once
 
 
-#define ROM_START_ADDR               (0)
+#define BOOT_ROM_LENGTH              (0x100)
 
 #define GAME_ROM_START_ADDR          (0)
 #define GAME_ROM_LENGTH              (32768)
