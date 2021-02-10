@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "header.h"
 
 typedef eu16 RamAddr;
 
@@ -71,8 +72,8 @@ typedef struct {
 
     bool halt;
     bool running;
-    bool enable_interrupt;
+    bool enableInterrupt;
 
-    eu32 clock_cnt;
+    eu32 clockCnt;
 }Cpu;
 ERIC_GEN_POINTER_TYPE(Cpu);

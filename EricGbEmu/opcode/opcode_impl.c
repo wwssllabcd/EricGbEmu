@@ -374,11 +374,11 @@ void opcode_stop() {
 }
 
 void opcode_di() {
-    g_cpu.enable_interrupt = false;
+    g_cpu.enableInterrupt = false;
 }
 
 void opcode_ei() {
-    g_cpu.enable_interrupt = true;
+    g_cpu.enableInterrupt = true;
 }
 
 // ----------- 3.3.6. Rotates & Shifts -----------

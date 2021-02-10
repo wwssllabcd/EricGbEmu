@@ -3,9 +3,9 @@
 #include "mmu.h"
 #include "header.h"
 #include "boot\boot_rom.h"
+#include "input.h"
 
 eu8 g_ram[GB_RAM_SIZE] = {0};
-
 
 SpriteMap_p g_spriteAttrMap = (SpriteMap_p)(g_ram + SPRITE_MAP_START_ADDR);
 ZeroPage_p g_zeroPage = (ZeroPage_p)(g_ram + ZERO_PAGE);
@@ -33,7 +33,7 @@ eu8_p get_ram_ptr(RamAddr addr) {
 
 eu8 get_ram(RamAddr addr) {
     if (addr == IO_P1) {
-        return 0;
+        return input_read();
     }
 
     // fix 0xFF
@@ -49,6 +49,12 @@ eu8 get_ram(RamAddr addr) {
 }
 
 void set_ram(RamAddr addr, eu8 value) {
+
+    if (addr == IO_P1) {
+        input_write(value);
+        return;
+    }
+
     // debug: workaround
     if (addr == IO_TIMER_MODULE) {
         return;

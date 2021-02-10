@@ -3,6 +3,7 @@
 #include "video.h"
 #include "mmu.h"
 #include "adapter_sdl.h"
+#include "debug.h"
 
 #define CLOCKS_PER_HBLANK (204)         // Mode 0
 #define CLOCKS_PER_SCANLINE_OAM (80)    // Mode 2
@@ -215,8 +216,10 @@ void write_scan_line(eu8 curLine) {
 void video_tick(eu8 clock) {
     g_videoClock += clock;
 
+
     //PRINTF_DEBUG("total_clock=%X, video_clock=%X, video curmode=%X, ", g_cpu.clockCnt, g_videoClock, g_currentMode);
-    
+
+
     switch (LCD_STAT.mode_flag) {
         case STAT_SCAN_OAM_RAM:
             if (g_videoClock >= CLOCKS_PER_SCANLINE_OAM) {
