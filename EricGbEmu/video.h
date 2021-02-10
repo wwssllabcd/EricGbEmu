@@ -1,4 +1,6 @@
 #pragma once
+
+
 #include "header.h"
 
-extern const eu8 g_bootRom[0x100];
+void video_tick(eu8 clock);

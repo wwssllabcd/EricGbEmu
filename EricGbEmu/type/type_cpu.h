@@ -1,5 +1,6 @@
 ﻿#pragma once
 
+typedef eu16 RamAddr;
 
 typedef struct {
     eu8 all;
