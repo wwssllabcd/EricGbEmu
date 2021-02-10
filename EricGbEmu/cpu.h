@@ -34,9 +34,6 @@
 #define FLAG_C                      (flags->c)
 #define FLAG_NC                     (!flags->c)
 
-
-extern bool g_is_branch;
-
 extern Cpu g_cpu;
 
 extern WordReg_p af;

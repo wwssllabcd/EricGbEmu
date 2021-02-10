@@ -1,6 +1,5 @@
 
 #include <stdio.h>
-#include <Windows.h>
 #include <SDL.h>
 #include "header.h"
 #include "adapter_sdl.h"
@@ -25,7 +24,6 @@ int main(int argc, char* argv[])
 
     power_on_cpu(rom);
 
-    system("PAUSE");
     SDL_Quit();
     return 0;
 }

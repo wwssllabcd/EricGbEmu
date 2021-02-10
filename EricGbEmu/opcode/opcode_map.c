@@ -590,14 +590,14 @@ void op_cb_FD() { opcode_cb_set_b_r(l, 7); }
 void op_cb_FE() { opcode_cb_set_b_r_addr(REG_HL, 7); }
 void op_cb_FF() { opcode_cb_set_b_r(a, 7); }
 
-opcode_fun g_opcode_cb_fun_map[0x100] = { 
+OpcodeFun g_opcodeFunMap_cb[0x100] = { 
     GEN_FUN_MAP(cb_, 0), GEN_FUN_MAP(cb_, 1), GEN_FUN_MAP(cb_, 2), GEN_FUN_MAP(cb_, 3), 
     GEN_FUN_MAP(cb_, 4), GEN_FUN_MAP(cb_, 5), GEN_FUN_MAP(cb_, 6), GEN_FUN_MAP(cb_, 7), 
     GEN_FUN_MAP(cb_, 8), GEN_FUN_MAP(cb_, 9), GEN_FUN_MAP(cb_, A), GEN_FUN_MAP(cb_, B),
     GEN_FUN_MAP(cb_, C), GEN_FUN_MAP(cb_, D), GEN_FUN_MAP(cb_, E), GEN_FUN_MAP(cb_, F) 
 };
 
-opcode_fun g_opcode_fun_map[0x100] = { 
+OpcodeFun g_opcodeFunMap[0x100] = { 
     GEN_FUN_MAP(, 0), GEN_FUN_MAP(, 1), GEN_FUN_MAP(, 2), GEN_FUN_MAP(, 3), 
     GEN_FUN_MAP(, 4), GEN_FUN_MAP(, 5), GEN_FUN_MAP(, 6), GEN_FUN_MAP(, 7),
     GEN_FUN_MAP(, 8), GEN_FUN_MAP(, 9), GEN_FUN_MAP(, A), GEN_FUN_MAP(, B), 

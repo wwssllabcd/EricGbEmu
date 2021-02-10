@@ -11,7 +11,7 @@ SDL_Window* g_window;
 SDL_Renderer* g_renderer;
 SDL_Texture* g_texture;
 
-uint32_t* g_sdl_pixels;
+uint32_t* g_sdlPixels;
 
 eu8 get_gb_key_event_code(SDL_Keycode keyCode) {
     switch (keyCode) {
@@ -27,9 +27,9 @@ eu8 get_gb_key_event_code(SDL_Keycode keyCode) {
     }
 }
 
-void get_sdl2_key_events(SDL_Keycode keyCode, bool is_key_down) {
+void get_sdl2_key_events(SDL_Keycode keyCode, bool isKeyDown) {
     eu8 event_code = get_gb_key_event_code(keyCode);
-    if (is_key_down) {
+    if (isKeyDown) {
         key_down_event(event_code);
     } else {
         key_up_event(event_code);
@@ -65,13 +65,13 @@ void process_events() {
     }
 }
 
-eu32 get_real_color(eu8 pixel_color) {
+eu32 get_real_color(eu8 pixelColor) {
     // for compile error
     eu8 r = 0;
     eu8 g = 0;
     eu8 b = 0;
 
-    switch (pixel_color) {
+    switch (pixelColor) {
         case 0:
             r = g = b = 255;
             break;  // white
@@ -85,14 +85,14 @@ eu32 get_real_color(eu8 pixel_color) {
             r = g = b = 0;
             break;  // black
         default:
-            ASSERT_CODE(0, "Wrong pixel color = %X", pixel_color);
+            ASSERT_CODE(0, "Wrong pixel color = %X", pixelColor);
     }
 
     return (r << 16) | (g << 8) | (b << 0);
 }
 
 void set_pixel(eu32 x, eu32 y, eu8 color) {
-    g_sdl_pixels[SCREEN_WIDTH * SDL_PIXEL_SIZE * y + x] = get_real_color(color);
+    g_sdlPixels[SCREEN_WIDTH * SDL_PIXEL_SIZE * y + x] = get_real_color(color);
 }
 
 void set_large_pixels(eu8 x, eu8 y, eu8 color) {
@@ -105,28 +105,28 @@ void set_large_pixels(eu8 x, eu8 y, eu8 color) {
     }
 }
 
-void set_pixels(eu8 frame_buffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
+void set_pixels(eu8 frameBuffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
     for (eu8 y = 0; y < SCREEN_HEIGHT; y++) {
         for (eu8 x = 0; x < SCREEN_WIDTH; x++) {
-            set_large_pixels(x, y, frame_buffer[y][x]);
+            set_large_pixels(x, y, frameBuffer[y][x]);
         }
     }
-    debug_show_pixels_table(frame_buffer);
+    debug_show_pixels_table(frameBuffer);
 }
 
-void draw_sdl2(eu8 frame_buffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
+void draw_sdl2(eu8 frameBuffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
     process_events();
 
     SDL_RenderClear(g_renderer);
 
-    void* pixels_ptr;
+    void* pixelsPtr;
     int pitch;
 
-    SDL_LockTexture(g_texture, NULL_PTR, &pixels_ptr, &pitch);
+    SDL_LockTexture(g_texture, NULL_PTR, &pixelsPtr, &pitch);
 
-    g_sdl_pixels =(uint32_t*)(pixels_ptr);
+    g_sdlPixels =(uint32_t*)(pixelsPtr);
 
-    set_pixels(frame_buffer);
+    set_pixels(frameBuffer);
 
     SDL_UnlockTexture(g_texture);
     SDL_RenderCopy(g_renderer, g_texture, NULL_PTR, NULL_PTR);

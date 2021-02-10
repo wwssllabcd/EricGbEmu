@@ -19,8 +19,6 @@
 #define INT_SERIAL (0x58)
 #define INT_JOY_PAD (0x60)
 
-bool g_is_branch = false;
-
 Cpu g_cpu = {
     .af = 0,
     .bc = 0,
@@ -152,21 +150,21 @@ void handle_interrupt() {
 
 eu8 execute_opcode() {
     eu8 opcode = fetch();
-    opcode_fun_usp op_map = g_opcode_fun_map;
+    OpcodeFun_usp opcodeFunMap = g_opcodeFunMap;
     bool is_cb_cmd = false;
 
     if (opcode == PREFIX_CMD) {
         opcode = fetch();
-        op_map = g_opcode_cb_fun_map;
+        opcodeFunMap = g_opcodeFunMap_cb;
         is_cb_cmd = true;
     }
 
-    op_map[opcode]();
+    opcodeFunMap[opcode]();
     eu8 clock = get_op_cycle(is_cb_cmd, opcode);
 
     debug_show_reg_ram(is_cb_cmd, opcode, clock);
 
-    g_is_branch = false;
+ 
     g_cmd_cnt++;
 
     return clock;
