@@ -2,7 +2,7 @@
 
 #include "video.h"
 #include "mmu.h"
-
+#include "adapter_sdl.h"
 
 #define CLOCKS_PER_HBLANK (204)         // Mode 0
 #define CLOCKS_PER_SCANLINE_OAM (80)    // Mode 2

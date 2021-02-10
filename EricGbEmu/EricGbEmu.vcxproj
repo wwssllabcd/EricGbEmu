@@ -25,6 +25,8 @@
     <ClCompile Include="common\utility\Util.c" />
     <ClCompile Include="cpu.c" />
     <ClCompile Include="cpu_cycle.c" />
+    <ClCompile Include="debug.c" />
+    <ClCompile Include="input.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="mmu.c" />
     <ClCompile Include="opcode\opcode_impl.c" />
@@ -46,11 +48,13 @@
     <ClInclude Include="common\utility\Util.h" />
     <ClInclude Include="cpu.h" />
     <ClInclude Include="cpu_cycle.h" />
+    <ClInclude Include="debug.h" />
     <ClInclude Include="define\define_gb.h" />
     <ClInclude Include="define\define_header.h" />
     <ClInclude Include="define\define_macro.h" />
     <ClInclude Include="define\define_ram_layout.h" />
     <ClInclude Include="header.h" />
+    <ClInclude Include="input.h" />
     <ClInclude Include="mmu.h" />
     <ClInclude Include="opcode\opcode_impl.h" />
     <ClInclude Include="opcode\opcode_map.h" />

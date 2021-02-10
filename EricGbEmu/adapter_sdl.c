@@ -2,13 +2,68 @@
 #include "adapter_sdl.h"
 #include <SDL.h>
 #include "cpu.h"
+#include "input.h"
+#include "debug.h"
 
 #define NULL_PTR (0)
 
 SDL_Window* g_window;
 SDL_Renderer* g_renderer;
 SDL_Texture* g_texture;
+
 uint32_t* g_sdl_pixels;
+
+eu8 get_gb_key_event_code(SDL_Keycode keyCode) {
+    switch (keyCode) {
+        case SDLK_UP: return GB_KEY_UP;
+        case SDLK_DOWN: return GB_KEY_DOWN;
+        case SDLK_LEFT: return GB_KEY_LEFT;
+        case SDLK_RIGHT: return GB_KEY_RIGHT;
+        case SDLK_k: return GB_KEY_A;
+        case SDLK_l: return GB_KEY_B;
+        case SDLK_1: return GB_KEY_SELECT;
+        case SDLK_2: return GB_KEY_START;
+        default: return GB_KEY_NULL;
+    }
+}
+
+void get_sdl2_key_events(SDL_Keycode keyCode, bool is_key_down) {
+    eu8 event_code = get_gb_key_event_code(keyCode);
+    if (is_key_down) {
+        key_down_event(event_code);
+    } else {
+        key_up_event(event_code);
+    }
+}
+
+void process_events() {
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_KEYDOWN:
+                if (event.key.repeat == true) {
+                    break;
+                }
+                get_sdl2_key_events(event.key.keysym.sym, true);
+                break;
+            case SDL_KEYUP:
+                if (event.key.repeat == true) {
+                    break;
+                }
+                get_sdl2_key_events(event.key.keysym.sym, false);
+                break;
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+                    g_cpu.running = true;
+                }
+                break;
+            case SDL_QUIT:
+                g_cpu.running = false;
+                break;
+        }
+    }
+}
 
 eu32 get_real_color(eu8 pixel_color) {
     // for compile error
@@ -56,33 +111,7 @@ void set_pixels(eu8 frame_buffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
             set_large_pixels(x, y, frame_buffer[y][x]);
         }
     }
-}
-
-void process_events() {
-    SDL_Event event;
-
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_KEYDOWN:
-                if (event.key.repeat == true) {
-                    break;
-                }
-                break;
-            case SDL_KEYUP:
-                if (event.key.repeat == true) {
-                    break;
-                }
-                break;
-            case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
-                    g_cpu.running = true;
-                }
-                break;
-            case SDL_QUIT:
-                g_cpu.running = false;
-                break;
-        }
-    }
+    debug_show_pixels_table(frame_buffer);
 }
 
 void draw_sdl2(eu8 frame_buffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
