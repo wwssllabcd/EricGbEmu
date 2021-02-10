@@ -24,10 +24,12 @@
     <ClCompile Include="common\utility\show_msg.c" />
     <ClCompile Include="common\utility\Util.c" />
     <ClCompile Include="cpu.c" />
+    <ClCompile Include="cpu_cycle.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="mmu.c" />
     <ClCompile Include="opcode\opcode_impl.c" />
     <ClCompile Include="opcode\opcode_map.c" />
+    <ClCompile Include="video.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="adapter_sdl.h" />
@@ -43,6 +45,7 @@
     <ClInclude Include="common\utility\show_msg.h" />
     <ClInclude Include="common\utility\Util.h" />
     <ClInclude Include="cpu.h" />
+    <ClInclude Include="cpu_cycle.h" />
     <ClInclude Include="define\define_gb.h" />
     <ClInclude Include="define\define_header.h" />
     <ClInclude Include="define\define_macro.h" />
@@ -53,6 +56,7 @@
     <ClInclude Include="opcode\opcode_map.h" />
     <ClInclude Include="type\type_cpu.h" />
     <ClInclude Include="type\type_gb.h" />
+    <ClInclude Include="video.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

@@ -4,6 +4,8 @@
 #include "header.h"
 #include "mmu.h"
 #include "opcode/opcode_map.h"
+#include "cpu_cycle.h"
+#include "video.h"
 
 Cpu g_cpu = {
     .af = 0,
@@ -99,7 +101,10 @@ eu8 execute_opcode() {
     }
 
     op_map[opcode]();
-    return 1;
+
+    eu8 clock = get_op_cycle(is_cb_cmd, opcode);
+
+    return clock;
 }
 
 eu8 cpu_tick() {
@@ -110,9 +115,8 @@ eu8 cpu_tick() {
 }
 
 void tick() {
-    
-    cpu_tick();
-
+    eu8 clock = cpu_tick();
+    video_tick(clock);
 }
 
 void run_cpu() {
