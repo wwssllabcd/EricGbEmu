@@ -4,13 +4,6 @@
 #include "mmu.h"
 
 
-enum {
-    SCAN_OAM,
-    ACCESS_VRAM,
-    HBLANK,
-    VBLANK,
-};
-
 #define CLOCKS_PER_HBLANK (204)         // Mode 0
 #define CLOCKS_PER_SCANLINE_OAM (80)    // Mode 2
 #define CLOCKS_PER_SCANLINE_VRAM (172)  // Mode 3
@@ -22,11 +15,10 @@ enum {
 #define STAT_TRANSFER_DATA_TO_LCD_DRIVE (3)
 
 eu32 g_videoClock = 0;
-eu8 g_currentMode = 0;
-eu8 g_screen_frame_buffer[SCREEN_HEIGHT][SCREEN_WIDTH];
+eu8 g_screenFrameBuffer[SCREEN_HEIGHT][SCREEN_WIDTH];
 
 void draw() {
-    
+    draw_sdl2(g_screenFrameBuffer);
 }
 
 eu8 get_pixel_data(eu8 byte_0, eu8 byte_1, eu8 px_offset) {
@@ -98,7 +90,7 @@ void write_screen_frame_buffer(eu8 x, eu8 y, eu8 color) {
     if (y >= SCREEN_HEIGHT) {
         ASSERT_CODE(0, "screen_y ofb =%X", y);
     }
-    g_screen_frame_buffer[y][x] = color;
+    g_screenFrameBuffer[y][x] = color;
 }
 
 void draw_bg_window_line(eu8 screen_x, eu8 screen_y, ScrollPx scroll_x, ScrollPx scroll_y) {
@@ -114,6 +106,9 @@ void draw_bg_window_line(eu8 screen_x, eu8 screen_y, ScrollPx scroll_x, ScrollPx
 
     TileLine_sp tileLine = &tileDataTable->pattern_map[tile_id].line_map[scroll_y.tile_px];
     write_screen_frame_buffer(screen_x, screen_y, get_bg_palette(get_pixel_data(tileLine->byte0, tileLine->byte1, scroll_x.tile_px)));
+    
+    //PRINTF_DEBUG("scroll_x=%X scroll_y=%X, tile_id=%X", scroll_x.all, scroll_y.all, tile_id);
+    //PRINTF_DEBUG("line B0=%X, B1=%X, offset=%X, screen_color=%X", tile_line->line_low, tile_line->line_high, scroll_x.tile_px, screen_frame_buffer[screen_x]);
 }
 
 void draw_window_line(eu8 screen_y) {
@@ -130,6 +125,8 @@ void draw_window_line(eu8 screen_y) {
 }
 
 void get_bg_line_data(eu8 screen_y) {
+    //PRINTF_DEBUG("FF40=%X, curLine=%X", LCD_CTRL.all, screen_y);
+
     eu8 scrolled_x = LCD.scx;
     eu8 scrolled_y = screen_y + LCD.scy;
 
@@ -142,14 +139,16 @@ void get_bg_line_data(eu8 screen_y) {
     }
 }
 
-void draw_sprite(eu8 sprite_num) {
-    Sprite_p sprite = GET_SPRITE_PTR(sprite_num);
+void draw_sprite(eu8 spriteNum) {
+    Sprite_p sprite = GET_SPRITE_PTR(spriteNum);
     if (sprite->x == 0 || sprite->x >= 168) {
         return;
     }
     if (sprite->y == 0 || sprite->y >= 160) {
         return;
     }
+
+    //PRINTF_DEBUG("write_sprites num=%X", spriteNum);
 
     // sprite always use 0x8000
     TilePatternMap_p tilePatternMap = get_tile_data_table(1);
@@ -194,8 +193,8 @@ void write_sprites() {
         return;
     }
 
-    for (eu8 spriteNum = 0; spriteNum < TOTAL_SPRITE_CNT; spriteNum++) {
-        draw_sprite(spriteNum);
+    for (eu8 sprite_n = 0; sprite_n < TOTAL_SPRITE_CNT; sprite_n++) {
+        draw_sprite(sprite_n);
     }
 }
 
@@ -216,15 +215,16 @@ void write_scan_line(eu8 curLine) {
 void video_tick(eu8 clock) {
     g_videoClock += clock;
 
-    switch (g_currentMode) {
-        case SCAN_OAM:
+    //PRINTF_DEBUG("total_clock=%X, video_clock=%X, video curmode=%X, ", g_cpu.clockCnt, g_videoClock, g_currentMode);
+    
+    switch (LCD_STAT.mode_flag) {
+        case STAT_SCAN_OAM_RAM:
             if (g_videoClock >= CLOCKS_PER_SCANLINE_OAM) {
                 g_videoClock = g_videoClock % CLOCKS_PER_SCANLINE_OAM;
                 LCD_STAT.mode_flag = STAT_TRANSFER_DATA_TO_LCD_DRIVE;
-                g_currentMode = ACCESS_VRAM;
             }
             break;
-        case ACCESS_VRAM:
+        case STAT_TRANSFER_DATA_TO_LCD_DRIVE:
             if (g_videoClock >= CLOCKS_PER_SCANLINE_VRAM) {
                 g_videoClock = g_videoClock % CLOCKS_PER_SCANLINE_VRAM;
 
@@ -232,30 +232,26 @@ void video_tick(eu8 clock) {
                 if (LCD_STAT.mode_00) {
                     IE.lcdc = 1;
                 }
-
                 check_and_set_lyc_flag();
                 LCD_STAT.mode_flag = STAT_HBLANK_PERIOD;
-                g_currentMode = HBLANK;
             }
             break;
-        case HBLANK:
+        case STAT_HBLANK_PERIOD:
             if (g_videoClock >= CLOCKS_PER_HBLANK) {
                 g_videoClock = g_videoClock % CLOCKS_PER_HBLANK;
 
                 write_scan_line(LCD.ly);
                 LCD.ly++;
-
+                
                 if (LCD.ly >= 144) {
                     LCD_STAT.mode_flag = STAT_VBLANK_PERIOD;
                     IF.vblank = 1;
-                    g_currentMode = VBLANK;
                 } else {
                     LCD_STAT.mode_flag = STAT_SCAN_OAM_RAM;
-                    g_currentMode = SCAN_OAM;
                 }
             }
             break;
-        case VBLANK:
+        case STAT_VBLANK_PERIOD:
             if (g_videoClock >= CLOCKS_PER_SCANLINE) {
                 g_videoClock = g_videoClock % CLOCKS_PER_SCANLINE;
                 LCD.ly++;
@@ -265,7 +261,6 @@ void video_tick(eu8 clock) {
 
                     LCD.ly = 0;
                     LCD_STAT.mode_flag = STAT_SCAN_OAM_RAM;
-                    g_currentMode = SCAN_OAM;
                 }
             }
             break;
