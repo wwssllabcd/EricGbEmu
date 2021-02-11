@@ -4,17 +4,17 @@
 #include "mmu.h"
 #include "adapter_sdl.h"
 #include "debug.h"
+#include "cpu.h"
+#include <stdio.h>
 
-#define CLOCKS_PER_HBLANK (204)         // Mode 0
-#define CLOCKS_PER_SCANLINE_OAM (80)    // Mode 2
-#define CLOCKS_PER_SCANLINE_VRAM (172)  // Mode 3
-#define CLOCKS_PER_SCANLINE (CLOCKS_PER_HBLANK + CLOCKS_PER_SCANLINE_OAM + CLOCKS_PER_SCANLINE_VRAM)
+enum  {
+    ACCESS_OAM,
+    ACCESS_VRAM,
+    HBLANK,
+    VBLANK,
+};
 
-#define STAT_HBLANK_PERIOD (0)
-#define STAT_VBLANK_PERIOD (1)
-#define STAT_SCAN_OAM_RAM (2)
-#define STAT_TRANSFER_DATA_TO_LCD_DRIVE (3)
-
+eu8 g_curMode = 0;
 eu32 g_videoClock = 0;
 eu8 g_screenFrameBuffer[SCREEN_HEIGHT][SCREEN_WIDTH];
 
@@ -216,18 +216,15 @@ void write_scan_line(eu8 curLine) {
 void video_tick(eu8 clock) {
     g_videoClock += clock;
 
-
-    //PRINTF_DEBUG("total_clock=%X, video_clock=%X, video curmode=%X, ", g_cpu.clockCnt, g_videoClock, g_currentMode);
-
-
-    switch (LCD_STAT.mode_flag) {
-        case STAT_SCAN_OAM_RAM:
+    switch (g_curMode) {
+        case ACCESS_OAM:
             if (g_videoClock >= CLOCKS_PER_SCANLINE_OAM) {
                 g_videoClock = g_videoClock % CLOCKS_PER_SCANLINE_OAM;
                 LCD_STAT.mode_flag = STAT_TRANSFER_DATA_TO_LCD_DRIVE;
+                g_curMode = ACCESS_VRAM;
             }
             break;
-        case STAT_TRANSFER_DATA_TO_LCD_DRIVE:
+        case ACCESS_VRAM:
             if (g_videoClock >= CLOCKS_PER_SCANLINE_VRAM) {
                 g_videoClock = g_videoClock % CLOCKS_PER_SCANLINE_VRAM;
 
@@ -237,24 +234,28 @@ void video_tick(eu8 clock) {
                 }
                 check_and_set_lyc_flag();
                 LCD_STAT.mode_flag = STAT_HBLANK_PERIOD;
+
+                g_curMode = HBLANK;
             }
             break;
-        case STAT_HBLANK_PERIOD:
+        case HBLANK:
             if (g_videoClock >= CLOCKS_PER_HBLANK) {
                 g_videoClock = g_videoClock % CLOCKS_PER_HBLANK;
 
                 write_scan_line(LCD.ly);
                 LCD.ly++;
                 
-                if (LCD.ly >= 144) {
+                if (LCD.ly == 144) {
                     LCD_STAT.mode_flag = STAT_VBLANK_PERIOD;
                     IF.vblank = 1;
+                    g_curMode = VBLANK;
                 } else {
                     LCD_STAT.mode_flag = STAT_SCAN_OAM_RAM;
+                    g_curMode = ACCESS_OAM;
                 }
             }
             break;
-        case STAT_VBLANK_PERIOD:
+        case VBLANK:
             if (g_videoClock >= CLOCKS_PER_SCANLINE) {
                 g_videoClock = g_videoClock % CLOCKS_PER_SCANLINE;
                 LCD.ly++;
@@ -264,8 +265,33 @@ void video_tick(eu8 clock) {
 
                     LCD.ly = 0;
                     LCD_STAT.mode_flag = STAT_SCAN_OAM_RAM;
+
+                    g_curMode = ACCESS_OAM;
                 }
             }
             break;
     };
+
+    if (g_curMode == ACCESS_OAM) {
+        if (LCD_STAT.mode_flag != STAT_SCAN_OAM_RAM) {
+            printf("\nwrong mode, ACCESS_OAM, but lcd=%X", LCD_STAT.mode_flag);
+        }
+    }
+    if (g_curMode == ACCESS_VRAM) {
+        if (LCD_STAT.mode_flag != STAT_TRANSFER_DATA_TO_LCD_DRIVE) {
+            printf("\nwrong mode, ACCESS_VRAM, but lcd=%X", LCD_STAT.mode_flag);
+        }
+    }
+    if (g_curMode == HBLANK) {
+        if (LCD_STAT.mode_flag != STAT_HBLANK_PERIOD) {
+            printf("\nwrong mode, HBLANK, but lcd=%X", LCD_STAT.mode_flag);
+        }
+    }
+    if (g_curMode == VBLANK) {
+        if (LCD_STAT.mode_flag != STAT_VBLANK_PERIOD) {
+            printf("\nwrong mode, VBLANK, but lcd=%X", LCD_STAT.mode_flag);
+        }
+    }
+
+    PRINTF_DEBUG("TC=%X,VC=%X,VM=%X, ", g_cpu.clockCnt, g_videoClock, LCD_STAT.mode_flag);
 }

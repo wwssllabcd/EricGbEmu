@@ -16,7 +16,10 @@ bool check_hc_sub(eu32 minute, eu32 minus, eu32 mask) {
 eu32 add_a_b(eu32 summand, eu32 addend, eu32 mask) {
     eu32 result = summand + addend;
 
+    if (mask == 0xFF) {
     set_z((result & mask) == 0);
+    }
+    
     set_n(false);
     set_h(check_hc_add(summand, addend, mask >> 4));
     set_c(result > mask);
@@ -87,28 +90,30 @@ eu8 rrx_n(eu8 value, eu8 plus) {
     return result;
 }
 
-void set_sla_sra_srl_flag(eu8 value, eu8 checkBit) {
-    set_z(value == 0);
+void set_sla_sra_srl_flag(eu8 result, bool carry) {
+    set_z(result == 0);
     set_n(false);
     set_h(false);
-    set_c(CHECK_BIT(value, checkBit));
+    set_c(carry);
 }
 
 eu8 sla_n(eu8 value) {
     eu8 res = (value << 1);
-    set_sla_sra_srl_flag(res, 7);
+    set_sla_sra_srl_flag(res, CHECK_BIT(value, 7));
     return res;
 }
 
 eu8 sra_n(eu8 value) {
-    eu8 res = (value >> 1);
-    set_sla_sra_srl_flag(res, 0);
+    bool bit7 = CHECK_BIT(value, 7);
+    eu8 res = (value >> 1) | (bit7<<7);
+
+    set_sla_sra_srl_flag(res, CHECK_BIT(value, 0));
     return res;
 }
 
 eu8 srl_n(eu8 value) {
     eu8 res = (value >> 1);
-    set_sla_sra_srl_flag(res, 0);
+    set_sla_sra_srl_flag(res, CHECK_BIT(value, 0));
     return res;
 }
 
@@ -499,6 +504,7 @@ void opcode_jp_nn() {
 void opcode_jp_cc_nn(bool condition) {
     if (condition) {
         opcode_jp_nn();
+        g_isBranch = true;
     } else {
         // skip 2 byte
         fetch_word();
@@ -517,6 +523,7 @@ void opcode_jr_n() {
 void opcode_jr_cc_n(bool condition) {
     if (condition) {
         opcode_jr_n();
+        g_isBranch = true;
     } else {
         INC_REG(pc);
     }
@@ -532,6 +539,7 @@ void opcode_call_nn() {
 void opcode_call_cc_nn(bool condition) {
     if (condition) {
         opcode_call_nn();
+        g_isBranch = true;
     } else {
         INC_REG(pc);
         INC_REG(pc);
@@ -552,6 +560,7 @@ void opcode_ret() {
 void opcode_ret_cc(bool condition) {
     if (condition) {
         opcode_ret();
+        g_isBranch = true;
     }
 }
 

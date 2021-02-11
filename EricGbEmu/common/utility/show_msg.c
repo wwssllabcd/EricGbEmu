@@ -26,12 +26,10 @@ void hang_up(void) {
 void print_ram_base(PrintRamAddr ptr, eu32 len, GetRamFun fun) {
     for (PrintRamAddr i = 0; i < len; i++) {
         if ((i % 0x10) == 0) {
-            PRINTF_ALWAYS_NOCRLF("\n");
-            PRINTF_ALWAYS_NOCRLF("%04X | ", ptr + i);
+            show_msg("\n%04X | ", ptr + i);
         }
-        PRINTF_ALWAYS_NOCRLF("%02X, ", fun(ptr + i));
+        show_msg("%02X, ", fun(ptr + i));
     }
-    PRINTF_ALWAYS_NOCRLF("\n");
 }
 
 void write_log(echar_p fmt, ...) {

@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    init_sdl("My Gameboy Emulator", SCREEN_WIDTH * SDL_PIXEL_SIZE, SCREEN_HEIGHT * SDL_PIXEL_SIZE);
+    init_sdl("EricWang Gameboy Emulator", SCREEN_WIDTH * SDL_PIXEL_SIZE, SCREEN_HEIGHT * SDL_PIXEL_SIZE);
 
     echar_p romFileName = argv[1];
 

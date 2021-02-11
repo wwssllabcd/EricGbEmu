@@ -24,6 +24,21 @@ const eu8 g_opcodeCycles_cb[256] = {
     2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 4, 2
 };
 
+const eu8 g_opcodeCyclesBranched[256] = {
+    1, 3, 2, 2, 1, 1, 2, 1, 5, 2, 2, 2, 1, 1, 2, 1, 1, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1, 
+    3, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1, 3, 3, 2, 2, 3, 3, 3, 1, 3, 2, 2, 2, 1, 1, 2, 1, 
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 2, 2, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 
+    1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,
+    5, 3, 4, 4, 6, 4, 2, 4, 5, 4, 4, 0, 6, 6, 2, 4, 5, 3, 4, 0, 6, 4, 2, 4, 5, 4, 4, 0, 6, 0, 2, 4, 
+    3, 3, 2, 0, 0, 4, 2, 4, 4, 1, 4, 0, 0, 0, 2, 4, 3, 3, 2, 1, 0, 4, 2, 4, 3, 2, 4, 1, 0, 0, 2, 4
+};
+
+eu8 get_cycle_branch(eu8 opcode) {
+    return g_opcodeCyclesBranched[opcode];
+}
+
 eu8 get_cycle(eu8 opcode) {
     return g_opcodeCycles[opcode];
 }
@@ -32,9 +47,14 @@ eu8 get_cb_cycle(eu8 opcode) {
     return g_opcodeCycles_cb[opcode];
 }
 
-eu8 get_op_cycle(bool is_cb_cmd, eu8 opcode) {
-    if (is_cb_cmd) {
+eu8 get_op_cycle(bool isCbCmd, bool is_branch, eu8 opcode) {
+    if (isCbCmd) {
         return get_cb_cycle(opcode);
     }
+
+    if (is_branch) {
+        return get_cycle_branch(opcode);
+    }
+
     return get_cycle(opcode);
 }

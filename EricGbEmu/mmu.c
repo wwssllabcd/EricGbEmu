@@ -49,6 +49,11 @@ eu8 get_ram(RamAddr addr) {
 }
 
 void set_ram(RamAddr addr, eu8 value) {
+    //can not write when Non-MBC mode 
+    if (addr < 0x8000) {
+        PRINTF_ALWAYS("inhibit write rom addr=%X, val=%X", addr, value);
+        return;
+    }
 
     if (addr == IO_P1) {
         input_write(value);
@@ -92,4 +97,6 @@ void init_mmu(eu8_p rom) {
 
     set_ram(0xFF00, 0x3F);
     set_ram(0xFF02, 0xFF);
+
+    LCD_STAT.mode_flag = STAT_SCAN_OAM_RAM;
 }

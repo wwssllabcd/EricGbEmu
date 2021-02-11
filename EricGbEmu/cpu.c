@@ -19,6 +19,8 @@
 #define INT_SERIAL (0x58)
 #define INT_JOY_PAD (0x60)
 
+bool g_isBranch = false;
+
 Cpu g_cpu = {
     .af = 0,
     .bc = 0,
@@ -159,13 +161,16 @@ eu8 execute_opcode() {
         is_cb_cmd = true;
     }
 
+    stop_cmd_cnt(0);
+
+
     opcodeFunMap[opcode]();
-    eu8 clock = get_op_cycle(is_cb_cmd, opcode);
+    eu8 clock = get_op_cycle(is_cb_cmd, g_isBranch, opcode);
 
     debug_show_reg_ram(is_cb_cmd, opcode, clock);
 
- 
-    g_cmd_cnt++;
+    g_isBranch = false;
+    g_cmdCnt++;
 
     return clock;
 }
@@ -185,7 +190,7 @@ void timer_tick(eu8 clock) {
 
 void tick() {
     eu8 clock = cpu_tick();
-
+    g_cpu.clockCnt += clock;
 
 
 
