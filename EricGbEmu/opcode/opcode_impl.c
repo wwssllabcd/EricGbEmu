@@ -326,7 +326,7 @@ void opcode_daa() {
     eu8 reg = REG_A;
     eu16 correction = flags->c ? 0x60 : 0x00;
 
-    if (flags->c || (!flags->n && ((reg & 0x0F) > 9))) {
+    if (flags->h || (!flags->n && ((reg & 0x0F) > 9))) {
         correction |= 0x06;
     }
 

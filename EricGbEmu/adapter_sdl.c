@@ -13,6 +13,9 @@ SDL_Texture* g_texture;
 
 uint32_t* g_sdlPixels;
 
+typedef void(*SetPixelsFun)(eu32 x, eu32 y, eu8 color);
+
+
 eu8 get_gb_key_event_code(SDL_Keycode keyCode) {
     switch (keyCode) {
         case SDLK_UP: return GB_KEY_UP;
@@ -21,8 +24,8 @@ eu8 get_gb_key_event_code(SDL_Keycode keyCode) {
         case SDLK_RIGHT: return GB_KEY_RIGHT;
         case SDLK_k: return GB_KEY_A;
         case SDLK_l: return GB_KEY_B;
-        case SDLK_1: return GB_KEY_SELECT;
-        case SDLK_2: return GB_KEY_START;
+        case SDLK_SPACE: return GB_KEY_SELECT;
+        case SDLK_RETURN: return GB_KEY_START;
         default: return GB_KEY_NULL;
     }
 }
@@ -95,7 +98,7 @@ void set_pixel(eu32 x, eu32 y, eu8 color) {
     g_sdlPixels[SCREEN_WIDTH * SDL_PIXEL_SIZE * y + x] = get_real_color(color);
 }
 
-void set_large_pixels(eu8 x, eu8 y, eu8 color) {
+void set_large_pixels(eu32 x, eu32 y, eu8 color) {
     for (eu8 w = 0; w < SDL_PIXEL_SIZE; w++) {
         for (eu8 h = 0; h < SDL_PIXEL_SIZE; h++) {
             eu32 fin_x = x * SDL_PIXEL_SIZE + w;
@@ -105,10 +108,10 @@ void set_large_pixels(eu8 x, eu8 y, eu8 color) {
     }
 }
 
-void set_pixels(eu8 frameBuffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
+void set_pixels(eu8 frameBuffer[SCREEN_HEIGHT][SCREEN_WIDTH], SetPixelsFun set_pixel_fun) {
     for (eu8 y = 0; y < SCREEN_HEIGHT; y++) {
         for (eu8 x = 0; x < SCREEN_WIDTH; x++) {
-            set_large_pixels(x, y, frameBuffer[y][x]);
+            set_pixel_fun(x, y, frameBuffer[y][x]);
         }
     }
     debug_show_pixels_table(frameBuffer);
@@ -126,7 +129,7 @@ void draw_sdl2(eu8 frameBuffer[SCREEN_HEIGHT][SCREEN_WIDTH]) {
 
     g_sdlPixels =(uint32_t*)(pixelsPtr);
 
-    set_pixels(frameBuffer);
+    set_pixels(frameBuffer, set_large_pixels);
 
     SDL_UnlockTexture(g_texture);
     SDL_RenderCopy(g_renderer, g_texture, NULL_PTR, NULL_PTR);

@@ -30,11 +30,11 @@ TilePatternMap_p get_tile_data_table_bg_window() {
     return get_tile_data_table(LCD_CTRL.bg_and_window_tile_data_select);
 }
 
-TileIdMap_p get_screen_bg_tile_id_table() {
+TileIdMap_p get_bg_tile_id_map() {
     return get_tile_id_map(LCD_CTRL.bg_tile_map_display_select);
 }
 
-TileIdMap_p get_screen_window_tile_id_table() {
+TileIdMap_p get_window_tile_id_map() {
     return get_tile_id_map(LCD_CTRL.window_tile_map_display_select);
 }
 
@@ -94,22 +94,16 @@ void write_screen_frame_buffer(eu8 x, eu8 y, eu8 color) {
     g_screenFrameBuffer[y][x] = color;
 }
 
-void draw_bg_window_line(eu8 screen_x, eu8 screen_y, ScrollPx scroll_x, ScrollPx scroll_y) {
+void draw_bg_window_line(eu8 screen_x, eu8 screen_y, ScrollPx scroll_x, ScrollPx scroll_y, TileIdMap_sp screenTileIdMap) {
     TilePatternMap_sp tileDataTable = get_tile_data_table_bg_window();
-    TileIdMap_sp screenTileIdTable = get_screen_window_tile_id_table();
-    eu8 tile_id = screenTileIdTable->map_xy[scroll_y.tile_id][scroll_x.tile_id];
+    eu8 tile_id = screenTileIdMap->map_xy[scroll_y.tile_id][scroll_x.tile_id];
 
     if (!LCD_CTRL.bg_and_window_tile_data_select) {
-        // In the second case, patterns have signed numbers from - 128 to 127
-        //(i.e. pattern #0 lies at address $9000).
-        tile_id += 128;
+        tile_id -= 0x80;
     }
 
     TileLine_sp tileLine = &tileDataTable->pattern_map[tile_id].line_map[scroll_y.tile_px];
     write_screen_frame_buffer(screen_x, screen_y, get_bg_palette(get_pixel_data(tileLine->byte0, tileLine->byte1, scroll_x.tile_px)));
-    
-    //PRINTF_DEBUG("scroll_x=%X scroll_y=%X, tile_id=%X", scroll_x.all, scroll_y.all, tile_id);
-    //PRINTF_DEBUG("line B0=%X, B1=%X, offset=%X, screen_color=%X", tile_line->line_low, tile_line->line_high, scroll_x.tile_px, screen_frame_buffer[screen_x]);
 }
 
 void draw_window_line(eu8 screen_y) {
@@ -118,25 +112,27 @@ void draw_window_line(eu8 screen_y) {
 
     if (scrolled_y >= SCREEN_HEIGHT) { return; }
 
+    TileIdMap_usp screenTileIdMap = get_window_tile_id_map();
+
     for (eu8 screen_x = 0; screen_x < SCREEN_WIDTH; screen_x++) {
         ScrollPx scroll_x = { .all = scrolled_x + screen_x };
         ScrollPx scroll_y = { .all = scrolled_y };
-        draw_bg_window_line(screen_x, screen_y, scroll_x, scroll_y);
+        draw_bg_window_line(screen_x, screen_y, scroll_x, scroll_y, screenTileIdMap);
     }
 }
 
 void get_bg_line_data(eu8 screen_y) {
-    //PRINTF_DEBUG("FF40=%X, curLine=%X", LCD_CTRL.all, screen_y);
-
     eu8 scrolled_x = LCD.scx;
     eu8 scrolled_y = screen_y + LCD.scy;
+
+    TileIdMap_usp screenTileIdMap = get_bg_tile_id_map();
 
     for (eu8 screen_x = 0; screen_x < SCREEN_WIDTH; screen_x++) {
         // we need to roll back to 0 when scrolled_x > 256
         ScrollPx scroll_x = {.all = (scrolled_x + screen_x) % BG_MAP_PIXEL_SIZE};
         ScrollPx scroll_y = {.all = (scrolled_y) % BG_MAP_PIXEL_SIZE};
 
-        draw_bg_window_line(screen_x, screen_y, scroll_x, scroll_y);
+        draw_bg_window_line(screen_x, screen_y, scroll_x, scroll_y, screenTileIdMap);
     }
 }
 
@@ -245,13 +241,13 @@ void video_tick(eu8 clock) {
                 write_scan_line(LCD.ly);
                 LCD.ly++;
                 
-                if (LCD.ly == 144) {
+                if (LCD.ly < 144) {
+                    LCD_STAT.mode_flag = STAT_SCAN_OAM_RAM;
+                    g_curMode = ACCESS_OAM;
+                } else {
                     LCD_STAT.mode_flag = STAT_VBLANK_PERIOD;
                     IF.vblank = 1;
                     g_curMode = VBLANK;
-                } else {
-                    LCD_STAT.mode_flag = STAT_SCAN_OAM_RAM;
-                    g_curMode = ACCESS_OAM;
                 }
             }
             break;

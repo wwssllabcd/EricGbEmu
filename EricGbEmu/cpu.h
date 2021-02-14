@@ -3,7 +3,6 @@
 
 #include "header.h"
 
-//only for unknow reg
 #define REG_VAL(REG)                              ((REG)->all)
 
 #define INC_REG(REG)                              (REG_VAL(REG)++)
@@ -17,7 +16,6 @@
 #define REG_C                       REG_VAL(c)
 #define REG_D                       REG_VAL(d)
 #define REG_E                       REG_VAL(e)
-#define REG_F                       REG_VAL(reg_f)
 #define REG_H                       REG_VAL(h)
 #define REG_L                       REG_VAL(l)
 
