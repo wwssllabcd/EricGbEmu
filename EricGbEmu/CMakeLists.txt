@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
+project(eric_gb_emu LANGUAGES C)
+
+message("PROJECT_NAME =" ${PROJECT_NAME})
+
+
 set(CMAKE_C_FLAGS "--std=c11")
 
 message("CMAKE_SOURCE_DIR=" ${CMAKE_SOURCE_DIR})
@@ -14,26 +19,11 @@ include_directories(${INC_PATH})
 
 # ------- SDL2 ------- 
 find_package(SDL2 REQUIRED)
-
-message("SDL2_LIBRARY =" ${SDL2_LIBRARY})
-message("SDL2_INCLUDE_DIR =" ${SDL2_INCLUDE_DIR})
-message("SDL2_INCLUDE_DIRS =" ${SDL2_INCLUDE_DIRS})
-message("SDL2_IMAGE_INCLUDE_DIR =" ${SDL2_IMAGE_INCLUDE_DIR})
-message("SDL2_TTF_INCLUDE_DIR =" ${SDL2_TTF_INCLUDE_DIR})
-
-set(MY_SDL2_INC_DIR 
-    ${SDL2_INCLUDE_DIR} 
-    ${SDL2_INCLUDE_DIRS} 
-    ${SDL2_IMAGE_INCLUDE_DIR} 
-    ${SDL2_TTF_INCLUDE_DIR} 
-)
-
-message("MY_SDL2_INC_DIR =" ${MY_SDL2_INC_DIR})
-include_directories(${SDL2_INC_DIR})
-                    
+message("SDL2_INCLUDE_DIR =" ${SDL2_INCLUDE_DIRS})
 message("SDL2_LIBRARIES =" ${SDL2_LIBRARIES})
-#add_library(${SDL2_LIBRARIES})
 
+include_directories(${SDL2_INCLUDE_DIRS})
+                    
 
 # ------- source code ------- 
 set(SRC_CODE_LIST
@@ -56,8 +46,6 @@ set(SRC_CODE_LIST
    ./video.c
 )
 
-add_executable(eric_gb_emu ${SRC_CODE_LIST})
+add_executable(${PROJECT_NAME} ${SRC_CODE_LIST})
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 
-
-target_include_directories(eric_gb_emu ${MY_SDL2_INC_DIR})
-target_link_libraries(eric_gb_emu ${SDL2_LIBRARIES})
