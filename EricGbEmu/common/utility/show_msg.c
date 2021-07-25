@@ -6,6 +6,8 @@
 
 #include "show_msg.h"
 #include "define/define_unicode.h"
+#include "Util.h"
+
 
 void show_msg(echar_p fmt, ...) {
     va_list arg;
@@ -37,7 +39,8 @@ void write_log(echar_p fmt, ...) {
     va_start(arg, fmt);
     echar_p filename = _ET("log.txt");
     FILE* file;
-    TFOPEN(&file, _ET("log.txt"), _ET("a"));
+
+    file = file_open(_ET("log.txt"), _ET("a"));
 
     if (file == NULL) {
         PRINTF_ALWAYS("file open fail = %s", filename);
@@ -48,3 +51,4 @@ void write_log(echar_p fmt, ...) {
     fclose(file);
     va_end(arg);
 }
+

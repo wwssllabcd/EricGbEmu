@@ -41,6 +41,7 @@
     <ClInclude Include="common\define\define_const_num.h" />
     <ClInclude Include="common\define\define_header.h" />
     <ClInclude Include="common\define\define_macro_fun.h" />
+    <ClInclude Include="common\define\define_platform.h" />
     <ClInclude Include="common\define\define_unicode.h" />
     <ClInclude Include="common\type\type_base.h" />
     <ClInclude Include="common\type\type_header.h" />
