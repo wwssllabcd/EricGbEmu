@@ -2,7 +2,7 @@
 
 #include "mmu.h"
 #include "header.h"
-#include "boot\boot_rom.h"
+#include "boot/boot_rom.h"
 #include "input.h"
 
 eu8 g_ram[GB_RAM_SIZE] = {0};

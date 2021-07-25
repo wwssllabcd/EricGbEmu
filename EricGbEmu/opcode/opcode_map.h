@@ -1,5 +1,5 @@
 #pragma once
-
+#include "common/type/type_header.h"
 
 #define PREFIX_CMD (0xCB)
 
